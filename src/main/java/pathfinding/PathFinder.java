@@ -22,9 +22,7 @@ class PathFinder {
         this.pointsDataMap = new HashMap<>();
         this.visitedPointsMap = new HashMap<>();
     }
-    public static void main(String[] args) {
-        System.out.println("Change");
-    }
+    public static void main(String[] args) {}
     protected boolean findPath() {
         LinkedList<Point> pathPoints = new LinkedList<>();
         Point currentPoint = this.startingPoint;

@@ -17,10 +17,9 @@ class FinderForGUI {
     private final Point startingPoint;
     private final Point targetPoint;
     private final char[][] map;
-    private final JFrame frame;
     ArrayList<JPanel> panelList;
     int delay;
-    protected FinderForGUI(Point startingPoint, Point targetPoint, char[][] map,ArrayList<JPanel> panelList,int delay,JFrame frame) {
+    protected FinderForGUI(Point startingPoint, Point targetPoint, char[][] map,ArrayList<JPanel> panelList,int delay) {
         this.startingPoint = startingPoint;
         this.targetPoint = targetPoint;
         this.map = map;
@@ -28,7 +27,6 @@ class FinderForGUI {
         this.visitedPointsMap = new HashMap<>();
         this.panelList=panelList;
         this.delay=delay;
-        this.frame=frame;
     }
     protected boolean findPath() {
         LinkedList<Point> pathPoints = new LinkedList<>();
@@ -117,9 +115,8 @@ class FinderForGUI {
                 myMap[row][col] = map[row][col];
             }
         }
-        for(int i = 0;i<listOfPoints.size();i++){
-            Point step = new Point((int)listOfPoints.get(i).getX(),(int)listOfPoints.get(i).getY());
-            myMap[(int) step.getX()][(int) step.getY()]='S';
+        for (Point step : listOfPoints) {
+            myMap[(int) step.getX()][(int) step.getY()] = 'S';
         }
         for(int row = 0;row<map.length;row++){
             System.out.println();

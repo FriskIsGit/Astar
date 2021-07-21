@@ -65,7 +65,7 @@ class GUIPathFinding {
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        FinderForGUI finder = new FinderForGUI(startingPoint,targetPoint,grid,panelList,delay,frame);
+                                        FinderForGUI finder = new FinderForGUI(startingPoint,targetPoint,grid,panelList,delay);
                                         boolean outputResult = finder.findPath();
                                         if(outputResult){
                                             JOptionPane.showMessageDialog(frame,"Path found","Good news..",JOptionPane.INFORMATION_MESSAGE);
@@ -89,12 +89,10 @@ class GUIPathFinding {
                                         displayGrid();
                                     }
                                 }).start();
-
                             }
                             else{
                                 JOptionPane.showMessageDialog(frame,"Validation failed","Alert",JOptionPane.WARNING_MESSAGE);
                             }
-
                         }
                     }
                 });
@@ -122,8 +120,6 @@ class GUIPathFinding {
             }
         });
 
-
-
         int numberOfRows=10,numberOfColumns = 10;
         String[] choices = {"Grid Size","Line Breadth","Step delay","Continue"};
         while (true) {
@@ -132,7 +128,6 @@ class GUIPathFinding {
                 int tempVariable;
                 String inputStr;
                 if (selected.equals("Grid Size")) {
-
                     inputStr = JOptionPane.showInputDialog(frame, "Enter numberOfRows [0<rows<=100]: \n Current: " + numberOfRows);
                     if (inputStr == null) {
                         break;
@@ -178,7 +173,6 @@ class GUIPathFinding {
             }else{
                 break;
             }
-
         }
         grid = padTwoDArray(numberOfRows,numberOfColumns);
 
@@ -194,7 +188,6 @@ class GUIPathFinding {
         });
 
         frame.add(menuBar);
-
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(Color.GRAY);
         frame.addKeyListener(new KeyListener() {
@@ -303,7 +296,6 @@ class GUIPathFinding {
                 }
                 System.out.println(keyCode);
             }
-
             @Override
             public void keyReleased(KeyEvent e) {
                 e.consume();
@@ -339,7 +331,6 @@ class GUIPathFinding {
         if(isPaneled) return;
         else isPaneled = true;
 
-        System.out.println("Cell Width: " + cellWidth + ";" + " CellHeight" + cellHeight);
         int index = 0;
         for (int iRow = 0, yPos = 0; iRow < grid.length; iRow++,yPos+=cellHeight+lineBreadth) {
             for (int iCol = 0, xPos = 0; iCol < grid[0].length; iCol++, xPos+=cellWidth+lineBreadth) {
@@ -390,7 +381,6 @@ class GUIPathFinding {
         }
         return arr;
     }
-
 
     private void initGrid() {
         if(this.isInitialized) return;
