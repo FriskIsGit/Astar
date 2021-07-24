@@ -21,11 +21,13 @@ class GUIPathFinding {
     private int column;
     private int cellWidth;
     private int cellHeight;
+    private int tempNumberOfRows;
+    private int tempNumberOfColumns;
     private char [][] grid;
     boolean isInitialized;
     boolean isPaneled;
     boolean hasArrowControl;
-    boolean isRunning;
+
     GUIPathFinding(){
         frame = new JFrame("Visual Path Finder");
         frame.setSize(400,400);
@@ -41,153 +43,14 @@ class GUIPathFinding {
         delay = 500;
         targetPoint= new Point(-1,-1);
         startingPoint= new Point(-1,-1);
+        tempNumberOfRows = 10;
+        tempNumberOfColumns = 10;
     }
     void runUserInterface(){
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setBounds(frame.getWidth()-170,0,100,18);
-
-        JMenuItem startItem = new JMenuItem("start");
-        menuBar.add(startItem);
-        startItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("Start Selected");
-                        if (isInitialized) {
-                            if(validate()){
-                                JOptionPane.showMessageDialog(frame,"Validation successful","Success",JOptionPane.INFORMATION_MESSAGE);
-                                //startItem.setEnabled(false);
-                                //frame.remove(menuBar);
-                                frame.repaint();
-                                //run
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        FinderForGUI finder = new FinderForGUI(startingPoint,targetPoint,grid,panelList,delay);
-                                        boolean outputResult = finder.findPath();
-                                        if(outputResult){
-                                            JOptionPane.showMessageDialog(frame,"Path found","Good news..",JOptionPane.INFORMATION_MESSAGE);
-                                        }
-                                        else{
-                                            JOptionPane.showMessageDialog(frame,"Unable to find proper pathing","b-ba-badaad news..",JOptionPane.WARNING_MESSAGE);
-                                        }
-                                        if(JOptionPane.showConfirmDialog(frame,"Reset grid..?")==0){
-                                            grid = padTwoDArray(grid.length, grid[0].length);
-                                            cleanPanels();
-                                        }
-                                    }
-
-                                    private void cleanPanels() {
-                                        for(int ithPanel = 0;ithPanel<panelList.size();ithPanel++){
-                                            JPanel thisPanel = panelList.get(ithPanel);
-                                            thisPanel.setBackground(Color.gray);
-                                            thisPanel.setBorder(null);
-                                        }
-                                        frame.repaint();
-                                        displayGrid();
-                                    }
-                                }).start();
-                            }
-                            else{
-                                JOptionPane.showMessageDialog(frame,"Validation failed","Alert",JOptionPane.WARNING_MESSAGE);
-                            }
-                        }
-                    }
-                });
-            }
-
-            private boolean validate() {
-                int countA = 0,countB = 0;
-                for(int iRow=0;iRow<grid.length;iRow++){
-                    for(int iCol =0;iCol<grid[0].length;iCol++){
-                        switch(grid[iRow][iCol]){
-                            case 'A':
-                                if(countA==1) return false;
-                                startingPoint=new Point(iRow,iCol);
-                                countA++;
-                                break;
-                            case 'B':
-                                if(countB==1) return false;
-                                targetPoint=new Point(iRow,iCol);
-                                countB++;
-                                break;
-                        }
-                    }
-                }
-                return countA != 0 && countB != 0;
-            }
-        });
-
-        int numberOfRows=10,numberOfColumns = 10;
-        String[] choices = {"Grid Size","Line Breadth","Step delay","Continue"};
-        while (true) {
-            String selected = (String) JOptionPane.showInputDialog(frame, "Modify settings", "Settings", JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
-            if (selected != null) {
-                int tempVariable;
-                String inputStr;
-                if (selected.equals("Grid Size")) {
-                    inputStr = JOptionPane.showInputDialog(frame, "Enter numberOfRows [0<rows<=100]: \n Current: " + numberOfRows);
-                    if (inputStr == null) {
-                        break;
-                    } else if (inputStr.matches("[0-9]+")) {
-                        tempVariable = Integer.parseInt(inputStr);
-                        if(tempVariable<101 && tempVariable>0) {
-                            numberOfRows = tempVariable;
-                        }
-                    }
-                    inputStr = JOptionPane.showInputDialog(frame, "Enter numberOfColumns [0<columns<=100]: \n Current: " + numberOfColumns);
-                    if (inputStr == null) {
-                        break;
-                    } else if (inputStr.matches("[0-9]+")) {
-                        tempVariable = Integer.parseInt(inputStr);
-                        if(tempVariable<101 && tempVariable>0) {
-                            numberOfColumns = tempVariable;
-                        }
-                    }
-                } else if (selected.equals("Line Breadth")) {
-                    inputStr = JOptionPane.showInputDialog(frame, "Enter breadth [pixels] [0<breadth<=25]: \n Current: " + lineBreadth);
-                    if (inputStr == null) {
-                        break;
-                    } else if (inputStr.matches("[0-9]+")) {
-                        tempVariable = Integer.parseInt(inputStr);
-                        if(tempVariable<25 && tempVariable>0) {
-                            lineBreadth = tempVariable;
-                        }
-                    }
-                } else if (selected.equals("Step delay")) {
-                    inputStr = JOptionPane.showInputDialog(frame, "Enter delay [ms] [0<delay<=10000]: \n Current: " + delay);
-                    if (inputStr == null) {
-                        break;
-                    } else if (inputStr.matches("[0-9]+")) {
-                        tempVariable = Integer.parseInt(inputStr);
-                        if(tempVariable<10000 && tempVariable>0) {
-                            delay = tempVariable;
-                        }
-                    }
-                } else if (selected.equals("Continue")) {
-                    break;
-                }
-            //quit options
-            }else{
-                break;
-            }
-        }
-        grid = padTwoDArray(numberOfRows,numberOfColumns);
-
-        JMenuItem helpItem = new JMenuItem("help");
-        menuBar.add(helpItem);
-        helpItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Help: "  +Thread.currentThread());
-                JOptionPane.showMessageDialog(helpItem, "#0 Visit settings to choose prefs \n#1 Press ENTER to confirm frame size and generate grid, gray fields are walkable. \n#2 Switch between cells using arrows or mouse \n#3 Currently selected cell is flickering yellow \n#4 Use SPACE to place walls, colored black \n#5 Set   - starting point by typing A         -target point by typing B \n#6 Choose start from the menu bar to simulate A* path finding");
-            }
-
-        });
-
-        frame.add(menuBar);
+        initMenuBar();
+        runSettingsWindow();
+        grid = padTwoDArray(tempNumberOfRows,tempNumberOfColumns);
+        
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(Color.GRAY);
         frame.addKeyListener(new KeyListener() {
@@ -304,6 +167,153 @@ class GUIPathFinding {
 
         frame.setVisible(true);
     }
+
+    private void initMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setBounds(frame.getWidth()-170,0,100,18);
+
+        JMenuItem startItem = new JMenuItem("start");
+        menuBar.add(startItem);
+        startItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isInitialized) {
+                            if(validate()){
+                                JOptionPane.showMessageDialog(frame,"Validation successful","Success",JOptionPane.INFORMATION_MESSAGE);
+                                //startItem.setEnabled(false);
+                                //frame.remove(menuBar);
+                                frame.repaint();
+                                //run
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        FinderForGUI finder = new FinderForGUI(startingPoint,targetPoint,grid,panelList,delay);
+                                        boolean outputResult = finder.findPath();
+                                        if(outputResult){
+                                            JOptionPane.showMessageDialog(frame,"Path found","Good news..",JOptionPane.INFORMATION_MESSAGE);
+                                        }
+                                        else{
+                                            JOptionPane.showMessageDialog(frame,"Unable to find proper pathing","b-ba-badaad news..",JOptionPane.WARNING_MESSAGE);
+                                        }
+                                        if(JOptionPane.showConfirmDialog(frame,"Reset grid..?")==0){
+                                            grid = padTwoDArray(grid.length, grid[0].length);
+                                            cleanPanels();
+                                        }
+                                    }
+
+                                    private void cleanPanels() {
+                                        for(int ithPanel = 0;ithPanel<panelList.size();ithPanel++){
+                                            JPanel thisPanel = panelList.get(ithPanel);
+                                            thisPanel.setBackground(Color.gray);
+                                            thisPanel.setBorder(null);
+                                        }
+                                        frame.repaint();
+                                        displayGrid();
+                                    }
+                                }).start();
+                            }
+                            else{
+                                JOptionPane.showMessageDialog(frame,"Validation failed","Alert",JOptionPane.WARNING_MESSAGE);
+                            }
+                        }
+                    }
+                });
+            }
+
+            private boolean validate() {
+                int countA = 0,countB = 0;
+                for(int iRow=0;iRow<grid.length;iRow++){
+                    for(int iCol =0;iCol<grid[0].length;iCol++){
+                        switch(grid[iRow][iCol]){
+                            case 'A':
+                                if(countA==1) return false;
+                                startingPoint=new Point(iRow,iCol);
+                                countA++;
+                                break;
+                            case 'B':
+                                if(countB==1) return false;
+                                targetPoint=new Point(iRow,iCol);
+                                countB++;
+                                break;
+                        }
+                    }
+                }
+                return countA != 0 && countB != 0;
+            }
+        });
+
+        JMenuItem helpItem = new JMenuItem("help");
+        menuBar.add(helpItem);
+        helpItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Help: "  +Thread.currentThread());
+                JOptionPane.showMessageDialog(helpItem, "#0 Visit settings to choose prefs \n#1 Press ENTER to confirm frame size and generate grid, gray fields are walkable. \n#2 Switch between cells using arrows or mouse \n#3 Currently selected cell is flickering yellow \n#4 Use SPACE to place walls, colored black \n#5 Set   - starting point by typing A         -target point by typing B \n#6 Choose start from the menu bar to simulate A* path finding");
+            }
+
+        });
+        frame.add(menuBar);
+    }
+
+    private void runSettingsWindow() {
+        String[] choices = {"Grid Size","Line Breadth","Step delay","Continue"};
+        while (true) {
+            String selected = (String) JOptionPane.showInputDialog(frame, "Modify settings", "Settings", JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
+            if (selected != null) {
+                int tempVariable;
+                String inputStr;
+                if (selected.equals("Grid Size")) {
+                    inputStr = JOptionPane.showInputDialog(frame, "Enter numberOfRows [0<rows<=100]: \n Current: " + tempNumberOfRows);
+                    if (inputStr == null) {
+                        break;
+                    } else if (inputStr.matches("[0-9]+")) {
+                        tempVariable = Integer.parseInt(inputStr);
+                        if(tempVariable<101 && tempVariable>0) {
+                            tempNumberOfRows = tempVariable;
+                        }
+                    }
+                    inputStr = JOptionPane.showInputDialog(frame, "Enter numberOfColumns [0<columns<=100]: \n Current: " + tempNumberOfColumns);
+                    if (inputStr == null) {
+                        break;
+                    } else if (inputStr.matches("[0-9]+")) {
+                        tempVariable = Integer.parseInt(inputStr);
+                        if(tempVariable<101 && tempVariable>0) {
+                            tempNumberOfColumns = tempVariable;
+                        }
+                    }
+                } else if (selected.equals("Line Breadth")) {
+                    inputStr = JOptionPane.showInputDialog(frame, "Enter breadth [pixels] [0<breadth<=25]: \n Current: " + lineBreadth);
+                    if (inputStr == null) {
+                        break;
+                    } else if (inputStr.matches("[0-9]+")) {
+                        tempVariable = Integer.parseInt(inputStr);
+                        if(tempVariable<25 && tempVariable>0) {
+                            lineBreadth = tempVariable;
+                        }
+                    }
+                } else if (selected.equals("Step delay")) {
+                    inputStr = JOptionPane.showInputDialog(frame, "Enter delay [ms] [0<delay<=10000]: \n Current: " + delay);
+                    if (inputStr == null) {
+                        break;
+                    } else if (inputStr.matches("[0-9]+")) {
+                        tempVariable = Integer.parseInt(inputStr);
+                        if(tempVariable<10000 && tempVariable>0) {
+                            delay = tempVariable;
+                        }
+                    }
+                } else if (selected.equals("Continue")) {
+                    break;
+                }
+                //quit options
+            }else{
+                break;
+            }
+        }
+    }
+
     private void initThread(){
         //handle navigation
         if(hasArrowControl) return;
