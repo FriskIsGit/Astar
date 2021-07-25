@@ -1,4 +1,4 @@
 # Astar Java
-Implementation of the A* algorithm in Java
+Implementation of A* algorithm in Java
 ## [More information here]
 [and here]
