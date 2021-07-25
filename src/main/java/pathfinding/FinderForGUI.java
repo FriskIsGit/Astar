@@ -3,8 +3,8 @@ package pathfinding;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.*;
-
 
 /**
  * G cost = distance from startingPoint
@@ -17,16 +17,21 @@ class FinderForGUI {
     private final Point startingPoint;
     private final Point targetPoint;
     private final char[][] map;
+
     ArrayList<JPanel> panelList;
     int delay;
+    private final DecimalFormat formatter;
+
     protected FinderForGUI(Point startingPoint, Point targetPoint, char[][] map,ArrayList<JPanel> panelList,int delay) {
         this.startingPoint = startingPoint;
         this.targetPoint = targetPoint;
         this.map = map;
         this.pointsDataMap = new HashMap<>();
         this.visitedPointsMap = new HashMap<>();
-        this.panelList=panelList;
-        this.delay=delay;
+
+        this.panelList = panelList;
+        this.delay = delay;
+        this.formatter = new DecimalFormat(".##");
     }
     protected boolean findPath() {
         LinkedList<Point> pathPoints = new LinkedList<>();
@@ -90,21 +95,27 @@ class FinderForGUI {
                         Point nextPoint = new Point(row, col);
                         if (!pointsDataMap.containsKey(nextPoint)) {
                             visitedPointsMap.put(nextPoint, false);
-                            costs[0] = Math.round(Math.sqrt(Math.pow(row - this.startingPoint.x, 2) + Math.pow(col - this.startingPoint.y, 2)) * 100D) / 100D;
-                            costs[1] = Math.round(Math.sqrt(Math.pow(row - this.targetPoint.x, 2) + Math.pow(col - this.targetPoint.y, 2)) * 100D) / 100D;
-                            costs[2] = costs[1] + costs[0];
+                            costs[0] = roundToTwoDecimalPlaces(Math.sqrt(Math.pow(row - this.startingPoint.x, 2) + Math.pow(col - this.startingPoint.y, 2)));
+                            costs[1] = roundToTwoDecimalPlaces(Math.sqrt(Math.pow(row - this.targetPoint.x, 2) + Math.pow(col - this.targetPoint.y, 2)));
+                            costs[2] = roundToTwoDecimalPlaces(costs[1] + costs[0]);
                             pointsDataMap.put(nextPoint, costs);
-
-                            JPanel localPanel = panelList.get(row * map[0].length + col);
-                            TitledBorder fCost = new TitledBorder(null,String.valueOf(costs[2]),TitledBorder.CENTER,TitledBorder.BELOW_TOP,null,null);
-                            localPanel.setBorder(fCost);
-                            sleep(delay);
+                            //don't label starting cell
+                            if(map[row][col]!='A') {
+                                JPanel localPanel = panelList.get(row * map[0].length + col);
+                                TitledBorder fCost = new TitledBorder(null, String.valueOf(costs[2]), TitledBorder.CENTER, TitledBorder.BELOW_TOP, null, null);
+                                localPanel.setBorder(fCost);
+                                sleep(delay);
+                            }
 
                         }
                     }
                 }
             }
         }
+    }
+    private double roundToTwoDecimalPlaces(double givenDouble){
+        String strDouble = formatter.format(givenDouble).replace(',','.');
+        return Double.parseDouble(strDouble);
     }
     //display
     private void drawPath(LinkedList<Point> listOfPoints) {
@@ -133,7 +144,4 @@ class FinderForGUI {
             e.printStackTrace();
         }
     }
-    /*private void printFCostMap(){
-        for(int i = 0;i<)
-    }*/
 }
