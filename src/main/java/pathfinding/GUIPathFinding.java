@@ -50,7 +50,7 @@ class GUIPathFinding {
         initMenuBar();
         runSettingsWindow();
         grid = padTwoDArray(tempNumberOfRows,tempNumberOfColumns);
-        
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(Color.GRAY);
         frame.addKeyListener(new KeyListener() {
@@ -170,7 +170,7 @@ class GUIPathFinding {
 
     private void initMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-        menuBar.setBounds(frame.getWidth()-170,0,100,18);
+        menuBar.setBounds(frame.getWidth()-170,0,130,18);
 
         JMenuItem startItem = new JMenuItem("start");
         menuBar.add(startItem);
@@ -254,6 +254,15 @@ class GUIPathFinding {
                 JOptionPane.showMessageDialog(helpItem, "#0 Visit settings to choose prefs \n#1 Press ENTER to confirm frame size and generate grid, gray fields are walkable. \n#2 Switch between cells using arrows or mouse \n#3 Currently selected cell is flickering yellow \n#4 Use SPACE to place walls, colored black \n#5 Set   - starting point by typing A         -target point by typing B \n#6 Choose start from the menu bar to simulate A* path finding");
             }
 
+        });
+
+        JMenuItem settingsItem = new JMenuItem("settings");
+        menuBar.add(settingsItem);
+        settingsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runSettingsWindow();
+            }
         });
         frame.add(menuBar);
     }
